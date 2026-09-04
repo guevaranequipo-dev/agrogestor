@@ -52,8 +52,7 @@ class PagoController extends FincaBaseController
         $validated['finca_id'] = $finca->id;
         $validated['total'] = Pago::calcularTotal($validated['tipo_pago'], $validated);
 
-        $pago = Pago::create($validated);
-        $pago->sincronizarGasto();
+        Pago::create($validated);
 
         return redirect()->route('pagos.index', $finca)
                          ->with('success', 'Pago registrado exitosamente.');
@@ -97,7 +96,6 @@ class PagoController extends FincaBaseController
         $validated['total'] = Pago::calcularTotal($validated['tipo_pago'], $validated);
 
         $pago->update($validated);
-        $pago->sincronizarGasto();
 
         return redirect()->route('pagos.index', $finca)
                          ->with('success', 'Pago actualizado exitosamente.');
@@ -111,7 +109,6 @@ class PagoController extends FincaBaseController
                     ->where('finca_id', $finca->id)
                     ->firstOrFail();
 
-        $pago->eliminarGasto();
         $pago->delete();
 
         return redirect()->route('pagos.index', $finca)

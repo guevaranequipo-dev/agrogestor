@@ -22,6 +22,21 @@ class Pago extends Model
         'total',
     ];
 
+    protected static function booted(): void
+    {
+        static::created(function (Pago $pago): void {
+            $pago->sincronizarGasto();
+        });
+
+        static::updated(function (Pago $pago): void {
+            $pago->sincronizarGasto();
+        });
+
+        static::deleted(function (Pago $pago): void {
+            $pago->eliminarGasto();
+        });
+    }
+
     // Un pago pertenece a un trabajador
     public function trabajador()
     {

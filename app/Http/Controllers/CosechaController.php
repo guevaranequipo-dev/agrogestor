@@ -9,6 +9,7 @@ use App\Models\Trabajador;
 use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class CosechaController extends FincaBaseController
@@ -178,28 +179,28 @@ class CosechaController extends FincaBaseController
             return redirect()->back()->with('error', 'Esta semana ya está cerrada.');
         }
 
-        // Generar pagos por trabajador
-        $resumen = RegistroCosecha::where('semana_id', $semana->id)
-                                  ->selectRaw('trabajador_id, SUM(total_kilos) as total_kilos')
-                                  ->groupBy('trabajador_id')
-                                  ->get();
+        DB::transaction(function () use ($semana, $finca): void {
+            $resumen = RegistroCosecha::where('semana_id', $semana->id)
+                                      ->selectRaw('trabajador_id, SUM(total_kilos) as total_kilos')
+                                      ->groupBy('trabajador_id')
+                                      ->get();
 
-        foreach ($resumen as $item) {
-            if ($item->total_kilos > 0) {
-                Pago::create([
-                    'trabajador_id'        => $item->trabajador_id,
-                    'finca_id'             => $finca->id,
-                    'tipo_pago'            => 'recoleccion',
-                    'fecha'                => $semana->fecha_fin,
-                    'cantidad_recolectada' => $item->total_kilos,
-                    'precio_por_kg'        => $semana->precio_kilo,
-                    'total'                => $item->total_kilos * $semana->precio_kilo,
-                ]);
+            foreach ($resumen as $item) {
+                if ($item->total_kilos > 0) {
+                    Pago::create([
+                        'trabajador_id'        => $item->trabajador_id,
+                        'finca_id'             => $finca->id,
+                        'tipo_pago'            => 'recoleccion',
+                        'fecha'                => $semana->fecha_fin,
+                        'cantidad_recolectada' => $item->total_kilos,
+                        'precio_por_kg'        => $semana->precio_kilo,
+                        'total'                => $item->total_kilos * $semana->precio_kilo,
+                    ]);
+                }
             }
-        }
 
-        // Cerrar la semana
-        $semana->update(['estado' => 'cerrada']);
+            $semana->update(['estado' => 'cerrada']);
+        });
 
         return redirect()->route('cosecha.index', $finca)
                          ->with('success', 'Semana cerrada y pagos generados exitosamente.');
