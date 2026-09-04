@@ -41,11 +41,14 @@
                 <tabla-filtrable
                     :filas="{{ json_encode($actividades) }}"
                     placeholder="Buscar actividad por nombre o estado..."
-                    :campos-busqueda="['nombre', 'estado', 'fecha_programada']"
+                                        :campos-busqueda="['nombre', 'estado', 'fecha_programada', 'trabajadores']"
                     :columnas="[
                         { campo: '#', label: '#' },
                         { campo: 'nombre', label: 'Nombre' },
                         { campo: 'fecha_programada', label: 'Fecha' },
+                                                { campo: 'trabajadores', label: 'Trabajadores',
+                                                    formato: (trabajadores) => trabajadores?.map(trabajador => trabajador.nombre).join(', ') || '-'
+                                                },
                         { campo: 'estado', label: 'Estado', tipo: 'badge',
                           color: (v) => v === 'pendiente' ? 'bg-secondary' : v === 'en_progreso' ? 'bg-warning text-dark' : 'bg-success',
                           formato: (v) => v === 'pendiente' ? 'Pendiente' : v === 'en_progreso' ? 'En Progreso' : 'Completada'

@@ -41,10 +41,11 @@
                 <tabla-filtrable
                     :filas="{{ json_encode($insumos) }}"
                     placeholder="Buscar insumo por nombre o tipo..."
-                    :campos-busqueda="['nombre', 'tipo', 'unidad_medida']"
+                    :campos-busqueda="['nombre', 'tipo', 'unidad_medida', 'descripcion']"
                     :columnas="[
                         { campo: '#', label: '#' },
                         { campo: 'nombre', label: 'Nombre' },
+                        { campo: 'descripcion', label: 'Descripción' },
                         { campo: 'tipo', label: 'Tipo', tipo: 'badge',
                           color: (v) => v === 'fertilizante' ? 'bg-success' : v === 'abono' ? 'bg-primary' : v === 'veneno' ? 'bg-danger' : 'bg-secondary',
                           formato: (v) => v.charAt(0).toUpperCase() + v.slice(1)
